@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>InfissiPiu — Web (completo)</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>InfissiPiu — Porting completo (HTML5)</h1>
+    <p>Versione web generata dal progetto WinForms originale. Supporta tipi TT e TGP, numero arbitrario di ante, disegno su canvas, esportazione risultati e repo pronto per GitHub Pages.</p>
+  </header>
+
+  <main class="container">
+    <section class="controls card">
+      <div class="row">
+        <label>Tipo
+          <select id="tipo"><option value="TT">TT</option><option value="TGP">TGP</option></select>
+        </label>
+        <label>Numero Ante
+          <input id="numeroAnte" type="number" min="1" max="8" value="2">
+        </label>
+        <label>Altezza (mm)
+          <input id="altezza" type="number" min="0" value="1200">
+        </label>
+        <label>Larghezza (mm)
+          <input id="larghezza" type="number" min="0" value="1500">
+        </label>
+      </div>
+      <div class="row">
+        <button id="calcola">Calcola</button>
+        <button id="exportJson">Esporta JSON</button>
+        <button id="exportCsv">Esporta CSV</button>
+        <button id="reset">Reset</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Risultati</h2>
+      <div id="results"></div>
+    </section>
+
+    <section class="card">
+      <h2>Disegno</h2>
+      <canvas id="canvas" width="800" height="400"></canvas>
+    </section>
+
+    <section class="card">
+      <h2>Log</h2>
+      <pre id="log">Pronto.</pre>
+    </section>
+  </main>
+
+  <footer class="card">
+    <small>Repo pronto per GitHub Pages: carica i file nella branch <code>gh-pages</code> o nella cartella <code>/docs</code> e abilita GitHub Pages.</small>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
