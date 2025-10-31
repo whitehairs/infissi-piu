@@ -1,19 +1,9 @@
-# InfissiPiu — versione cliente (bianco e blu)
+# InfissiPiu — mobile-optimized (print with canvas image)
 
-Questa versione è stata creata per mostrare i risultati in modo leggibile da clienti o non-tecnici.
-Contiene:
-- tabella Riepilogo (dati generali)
-- tabella Dettaglio per anta (colonne semplici)
-- disegno su canvas in scala approssimata
-- esportazione JSON/CSV
-- funzione Stampa (usa la funzione Stampa del browser per ottenere PDF)
+This package contains the mobile-optimized version with:
+- responsive UI for portrait smartphones
+- canvas resizing on window/orientation changes
+- print flow that converts the canvas to an <img> (so the render is included in PDF)
+- the Log section is hidden in print
 
-## Come usare
-1. Scarica i file e apri `index.html` in un browser moderno.
-2. Inserisci Tipo, Numero Ante, Altezza e Larghezza e clicca "Calcola".
-3. Usa i pulsanti Esporta o Stampa per generare documentazione da consegnare al cliente.
-
-## Note
-- I valori di prezzo non sono presenti nel sorgente originale, pertanto questa versione non contiene prezzi o preventivi.
-- Se desideri includere prezzi, posso aggiungere campi per costo/unità, moltiplicatori e una sezione "Totale preventivo".
-
+Open `index.html` on a mobile device to test, or use browser devtools mobile emulation.

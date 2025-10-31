@@ -2,8 +2,8 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>InfissiPiu — Scheda Cliente</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <title>InfissiPiu — Scheda Cliente (mobile)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,17 +11,17 @@
     <header class="topbar">
       <div class="title">
         <h1>InfissiPiu</h1>
-        <p class="muted">Scheda riassuntiva — versione cliente</p>
+        <p class="muted">Scheda riassuntiva — versione cliente (mobile)</p>
       </div>
-      <div class="actions">
-        <button id="exportJson" class="btn outline">Esporta JSON</button>
-        <button id="exportCsv" class="btn outline">Esporta CSV</button>
-        <button id="print" class="btn">Stampa / Esporta PDF</button>
+      <div class="actions" id="topActions">
+        <button id="exportJson" class="btn outline" title="Esporta JSON">JSON</button>
+        <button id="exportCsv" class="btn outline" title="Esporta CSV">CSV</button>
+        <button id="print" class="btn" title="Stampa / Esporta PDF">Stampa</button>
       </div>
     </header>
 
-    <main class="container">
-      <section class="input card">
+    <main class="container" id="main">
+      <section class="input card" id="inputSection">
         <h2>Dati input</h2>
         <div class="form-grid">
           <label>Tipo
@@ -34,12 +34,19 @@
             <input id="altezza" type="number" min="0" value="1200">
           </label>
           <label>Larghezza (mm)
-            <input id="larghezza" type="number" min="0" value="1500">
+            <input id="larghezza" type="number" value="1500">
           </label>
         </div>
         <div class="form-actions">
           <button id="calcola" class="btn primary">Calcola</button>
           <button id="reset" class="btn outline">Reset</button>
+        </div>
+      </section>
+
+      <section class="card drawing" id="drawingCard">
+        <h2>Ante (scala approssimata)</h2>
+        <div class="canvas-wrap">
+          <canvas id="canvas" aria-label="Disegno ante"></canvas>
         </div>
       </section>
 
@@ -53,19 +60,14 @@
         <div id="detailsTableContainer"></div>
       </section>
 
-      <section class="card drawing">
-        <h2>Ante (ante spazio in scala)</h2>
-        <canvas id="canvas" width="900" height="380" aria-label="Disegno ante"></canvas>
-      </section>
-
-      <section class="card log">
+      <section class="card log" id="logCard">
         <h2>Log attività</h2>
         <pre id="log" class="logpre">Pronto.</pre>
       </section>
     </main>
 
     <footer class="footer muted">
-      Nota: questa è una versione cliente dei risultati. Tutti i dati tecnici sono disponibili tramite "Esporta JSON/CSV".
+      Nota: versione ottimizzata per smartphone portrait. Per aggiungere il logo aziendale sarà sufficiente fornire il file immagine.
     </footer>
   </div>
 
