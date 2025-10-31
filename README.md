@@ -74,3 +74,24 @@ This package contains the mobile-optimized version with:
 - the Log section is hidden in print
 
 Open `index.html` on a mobile device to test, or use browser devtools mobile emulation.
+
+---
+
+# v3.2 Mobile stable
+
+Build stable e pronta per commit su GitHub (branch principale o gh-pages).
+
+Caratteristiche principali:
+- Canvas ridimensionato internamente usando devicePixelRatio (nitido su Retina).
+- Layout mobile-first ottimizzato per smartphone portrait (iPhone 15 Pro incluso).
+- Tabelle scrollabili e leggibili; stampa include il render grafico e nasconde il log.
+- Export JSON/CSV mantenuti.
+
+I file contenuti:
+- index.html
+- style.css
+- script.js
+- README.md
+
+Istruzioni: estrai lo zip e fai il push della cartella su GitHub. Per GitHub Pages, puoi usare branch `gh-pages` o cartella `docs/` su `main`.
+
