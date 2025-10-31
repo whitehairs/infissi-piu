@@ -11,6 +11,15 @@ const CONSTS = {
 // Short helper
 const $ = id => document.getElementById(id);
 
+// Utility per scrivere nel log
+function log(msg) {
+  const logEl = document.getElementById('log');
+  if (!logEl) return;
+  const now = new Date().toLocaleTimeString();
+  logEl.textContent += `\\n[${now}] ${msg}`;
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
 // Calculation logic (clean, deterministic)
 function calcParts(tipo, nAnte, H, L){
   const c = CONSTS;
