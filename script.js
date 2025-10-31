@@ -217,3 +217,28 @@ function performCalculate(scrollTo=true){
   log('Calcolo eseguito');
   if(scrollTo){ setTimeout(()=>{ const el = $('summarySection'); if(el) el.scrollIntoView({behavior:'smooth'}); }, 150); }
 }
+
+
+// ===== Mobile auto-scroll and resize support v2 =====
+window.addEventListener("resize", () => {
+  const canvas = document.querySelector("canvas");
+  if (!canvas) return;
+  // trigger redraw if function available
+  if (typeof ridisegnaInfisso === "function") {
+    ridisegnaInfisso();
+  }
+});
+
+function scrollToResults() {
+  const results = document.getElementById("results");
+  if (results) results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const calcButton = document.getElementById("btnCalcola");
+  if (calcButton) {
+    calcButton.addEventListener("click", () => {
+      setTimeout(scrollToResults, 800);
+    });
+  }
+});
