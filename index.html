@@ -2,39 +2,42 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-  <title>InfissiPiu — Scheda Cliente (mobile)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>InfissiPiu — Scheda Cliente (stable)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="app">
-    <header class="topbar">
+    <header class="topbar" role="banner">
       <div class="title">
         <h1>InfissiPiu</h1>
-        <p class="muted">Scheda riassuntiva — versione cliente (mobile)</p>
+        <p class="muted">Scheda cliente — versione mobile stabile</p>
       </div>
-      <div class="actions" id="topActions">
+      <div class="actions" id="topActions" aria-hidden="true">
         <button id="exportJson" class="btn outline" title="Esporta JSON">JSON</button>
         <button id="exportCsv" class="btn outline" title="Esporta CSV">CSV</button>
         <button id="print" class="btn" title="Stampa / Esporta PDF">Stampa</button>
       </div>
     </header>
 
-    <main class="container" id="main">
-      <section class="input card" id="inputSection">
-        <h2>Dati input</h2>
+    <main class="container" id="main" role="main">
+      <section class="input card" id="inputSection" aria-labelledby="inputTitle">
+        <h2 id="inputTitle">Dati input</h2>
         <div class="form-grid">
           <label>Tipo
-            <select id="tipo"><option value="TT">TT</option><option value="TGP">TGP</option></select>
+            <select id="tipo" aria-label="Tipo infisso">
+              <option value="TT">TT</option>
+              <option value="TGP">TGP</option>
+            </select>
           </label>
           <label>Numero ante
-            <input id="numeroAnte" type="number" min="1" max="8" value="2">
+            <input id="numeroAnte" type="number" min="1" max="8" value="2" aria-label="Numero ante">
           </label>
           <label>Altezza (mm)
-            <input id="altezza" type="number" min="0" value="1200">
+            <input id="altezza" type="number" min="0" value="1200" aria-label="Altezza in millimetri">
           </label>
           <label>Larghezza (mm)
-            <input id="larghezza" type="number" value="1500">
+            <input id="larghezza" type="number" min="0" value="1500" aria-label="Larghezza in millimetri">
           </label>
         </div>
         <div class="form-actions">
@@ -43,31 +46,31 @@
         </div>
       </section>
 
-      <section class="card drawing" id="drawingCard">
-        <h2>Ante (scala approssimata)</h2>
-        <div class="canvas-wrap">
-          <canvas id="canvas" aria-label="Disegno ante"></canvas>
+      <section class="card drawing" id="drawingCard" aria-labelledby="drawingTitle">
+        <h2 id="drawingTitle">Ante (scala adattiva)</h2>
+        <div class="canvas-wrap" id="canvasWrap">
+          <canvas id="canvas" aria-label="Disegno ante" role="img"></canvas>
         </div>
       </section>
 
-      <section class="card summary" id="summarySection" aria-live="polite">
-        <h2>Riepilogo</h2>
-        <div id="summaryTableContainer"></div>
+      <section class="card summary" id="summarySection" aria-live="polite" aria-labelledby="summaryTitle">
+        <h2 id="summaryTitle">Riepilogo</h2>
+        <div id="summaryTableContainer" class="table-wrap"></div>
       </section>
 
-      <section class="card details" id="detailsSection">
-        <h2>Dettaglio per anta</h2>
-        <div id="detailsTableContainer"></div>
+      <section class="card details" id="detailsSection" aria-labelledby="detailsTitle">
+        <h2 id="detailsTitle">Dettaglio per anta</h2>
+        <div id="detailsTableContainer" class="table-wrap"></div>
       </section>
 
-      <section class="card log" id="logCard">
-        <h2>Log attività</h2>
-        <pre id="log" class="logpre">Pronto.</pre>
+      <section class="card log" id="logCard" aria-labelledby="logTitle">
+        <h2 id="logTitle">Log attività</h2>
+        <pre id="log" class="logpre" aria-live="polite">Pronto.</pre>
       </section>
     </main>
 
-    <footer class="footer muted">
-      Nota: versione ottimizzata per smartphone portrait. Per aggiungere il logo aziendale sarà sufficiente fornire il file immagine.
+    <footer class="footer muted" role="contentinfo">
+      Nota: questa build è stabile e pronta per commit su GitHub (branch principale o gh-pages).
     </footer>
   </div>
 

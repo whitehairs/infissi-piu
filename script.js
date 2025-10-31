@@ -1,29 +1,28 @@
-// Mobile-optimized script: responsive canvas resize, print with canvas->image, and hide log in print
+// InfissiPiu - stable mobile v3
+// Production-ready: internal canvas scaling using devicePixelRatio,
+// responsive tables, print includes canvas image, log hidden in print.
+
 const CONSTS = {
   pr_tt: 46, vetro_tt: 154, inv_tt: 113,
   pr_tgp: 39, vetro_tgp: 139, inv_tgp: 108,
   lat: 22.5
 };
 
-function $(id){ return document.getElementById(id); }
-function log(msg){
-  const el = $('log');
-  const t = new Date().toLocaleTimeString();
-  if(el) el.textContent += `[${t}] ${msg}\n`;
-}
+// Short helper
+const $ = id => document.getElementById(id);
 
-// calculation logic
+// Calculation logic (clean, deterministic)
 function calcParts(tipo, nAnte, H, L){
   const c = CONSTS;
-  if(H<=0 || L<=0) throw new Error('Altezza e Larghezza devono essere > 0');
-  const pr = tipo==='TT' ? c.pr_tt : c.pr_tgp;
-  const vetro = tipo==='TT' ? c.vetro_tt : c.vetro_tgp;
-  const inv = tipo==='TT' ? c.inv_tt : c.inv_tgp;
-  const parts = {tipo, nAnte, H, L, ante: [], totals:{}};
+  if(H <= 0 || L <= 0) throw new Error('Altezza e Larghezza devono essere > 0');
+  const pr = tipo === 'TT' ? c.pr_tt : c.pr_tgp;
+  const vetro = tipo === 'TT' ? c.vetro_tt : c.vetro_tgp;
+  const inv = tipo === 'TT' ? c.inv_tt : c.inv_tgp;
+  const parts = { tipo, nAnte, H, L, ante: [], totals: {} };
   let totalTelaio = 0, totalVetroArea = 0;
-  for(let i=0;i<nAnte;i++){
-    const anta = {index:i+1};
-    if(nAnte===1){
+  for(let i = 0; i < nAnte; i++){
+    const anta = { index: i+1 };
+    if(nAnte === 1){
       anta.h_pr_anta = Math.round(H - pr);
       anta.l_pr_anta = Math.round(H - pr);
       anta.h_vetro = Math.round(H - vetro);
@@ -37,7 +36,7 @@ function calcParts(tipo, nAnte, H, L){
       anta.l_vetro = Math.round(((L - 315) / nAnte) + 35);
       if(anta.l_vetro < 0) anta.l_vetro = Math.round(Math.max(10, anta.l_pr_anta - 20));
     }
-    anta.parts = {AK90027: (nAnte>=2 && i===1)?3:0};
+    anta.parts = { AK90027: (nAnte >= 2 && i === 1) ? 3 : 0 };
     totalTelaio += anta.h_pr_anta * (anta.l_pr_anta || 1);
     totalVetroArea += anta.h_vetro * (anta.l_vetro || 1);
     parts.ante.push(anta);
@@ -47,10 +46,9 @@ function calcParts(tipo, nAnte, H, L){
   return parts;
 }
 
-// Render functions
+// Rendering helpers
 function renderSummary(parts){
   const container = $('summaryTableContainer');
-  if(!container) return;
   container.innerHTML = '';
   const table = document.createElement('table');
   const tbody = document.createElement('tbody');
@@ -59,8 +57,8 @@ function renderSummary(parts){
     ['Numero ante', parts.nAnte || ''],
     ['Altezza (mm)', parts.H || ''],
     ['Larghezza (mm)', parts.L || ''],
-    ['Superficie totale telaio (mm²)', (parts.totals && parts.totals.totalTelaioArea) || ''],
-    ['Superficie totale vetro (mm²)', (parts.totals && parts.totals.totalVetroArea) || '']
+    ['Superficie totale telaio (mm²)', parts.totals ? parts.totals.totalTelaioArea : ''],
+    ['Superficie totale vetro (mm²)', parts.totals ? parts.totals.totalVetroArea : '']
   ];
   rows.forEach(r => {
     const tr = document.createElement('tr');
@@ -69,87 +67,110 @@ function renderSummary(parts){
     tr.appendChild(th); tr.appendChild(td);
     tbody.appendChild(tr);
   });
-  table.appendChild(tbody); container.appendChild(table);
+  table.appendChild(tbody);
+  container.appendChild(table);
 }
 
 function renderDetails(parts){
   const container = $('detailsTableContainer');
-  if(!container) return;
   container.innerHTML = '';
   if(!parts || !parts.ante) return;
   const table = document.createElement('table');
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
-  ['Anta','Larghezza profilo (mm)','Altezza profilo (mm)','Larghezza vetro (mm)','Altezza vetro (mm)','AK90027'].forEach(h=>{
+  ['Anta','Larghezza profilo (mm)','Altezza profilo (mm)','Larghezza vetro (mm)','Altezza vetro (mm)','AK90027'].forEach(h => {
     const th = document.createElement('th'); th.textContent = h; headerRow.appendChild(th);
   });
   thead.appendChild(headerRow);
   const tbody = document.createElement('tbody');
-  parts.ante.forEach(a=>{
+  parts.ante.forEach(a => {
     const tr = document.createElement('tr');
-    const vals = [a.index, a.l_pr_anta, a.h_pr_anta, a.l_vetro, a.h_vetro, (a.parts.AK90027||0)];
-    vals.forEach(v=>{ const td = document.createElement('td'); td.textContent = v; tr.appendChild(td); });
+    const vals = [a.index, a.l_pr_anta, a.h_pr_anta, a.l_vetro, a.h_vetro, (a.parts.AK90027 || 0)];
+    vals.forEach(v => { const td = document.createElement('td'); td.textContent = v; tr.appendChild(td); });
     tbody.appendChild(tr);
   });
   table.appendChild(thead); table.appendChild(tbody);
   container.appendChild(table);
 }
 
-// Canvas drawing and resize
-let lastParts = null;
-function fitCanvas(canvas, height=300){
-  const wrap = canvas.parentElement;
-  const DPR = window.devicePixelRatio || 1;
-  const styleWidth = Math.max(200, wrap.clientWidth);
-  canvas.width = Math.floor(styleWidth * DPR);
-  canvas.height = Math.floor(height * DPR);
-  canvas.style.width = styleWidth + 'px';
-  canvas.style.height = height + 'px';
+// Canvas: internal scaling using devicePixelRatio and container width.
+// Keeps drawing proportioned and sharp on Retina displays.
+function setupCanvas(canvas){
   const ctx = canvas.getContext('2d');
-  ctx.setTransform(DPR,0,0,DPR,0,0);
-  return ctx;
+  function resize(height = 320){
+    const DPR = window.devicePixelRatio || 1;
+    const wrap = canvas.parentElement;
+    const availableWidth = Math.max(200, wrap.clientWidth);
+    const desiredHeight = height;
+    canvas.width = Math.floor(availableWidth * DPR);
+    canvas.height = Math.floor(desiredHeight * DPR);
+    canvas.style.width = availableWidth + 'px';
+    canvas.style.height = desiredHeight + 'px';
+    // Reset transform before scaling to avoid accumulation
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(DPR, DPR);
+    return ctx;
+  }
+  return { ctx, resize };
 }
 
+let canvasApi = null;
+let lastParts = null;
+
+// Draw function (pure drawing code, uses client sizes)
 function draw(parts){
   const canvas = $('canvas');
   if(!canvas) return;
-  const ctx = fitCanvas(canvas, 300);
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(!canvasApi) canvasApi = setupCanvas(canvas);
+  const ctx = canvas.getContext('2d');
+  canvasApi.resize(320); // height in CSS pixels
+  // compute drawing area in CSS pixels
+  const DPR = window.devicePixelRatio || 1;
+  const cssWidth = canvas.width / DPR;
+  const cssHeight = canvas.height / DPR;
+  // margins and scaling based on parts.L / parts.H
   const margin = 20;
-  const W = canvas.clientWidth - margin*2;
-  const H = 260;
-  const scale = Math.max(0.03, Math.min(W/parts.L, H/parts.H));
+  const W = Math.max(100, cssWidth - margin*2);
+  const H = Math.max(80, cssHeight - margin*2);
+  const scale = Math.max(0.03, Math.min(W / parts.L, H / parts.H));
   const drawW = parts.L * scale;
   const drawH = parts.H * scale;
-  const startX = margin + (W - drawW)/2;
-  const startY = 20;
+  const startX = margin + (W - drawW) / 2;
+  const startY = margin;
+  // clear (in CSS pixels)
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // draw frame
+  ctx.save();
   ctx.strokeStyle = '#0b3d91'; ctx.lineWidth = 2;
   ctx.strokeRect(startX, startY, drawW, drawH);
   const n = parts.nAnte;
-  for(let i=0;i<n;i++){
-    const x0 = startX + Math.round(i*(drawW/n));
-    const w = Math.round(drawW/n);
+  for(let i = 0; i < n; i++){
+    const x0 = startX + Math.round(i * (drawW / n));
+    const w = Math.round(drawW / n);
     ctx.fillStyle = 'rgba(11,102,255,0.04)';
     ctx.fillRect(x0, startY, w, drawH);
     ctx.strokeStyle = '#0b3d91'; ctx.lineWidth = 1;
     ctx.strokeRect(x0, startY, w, drawH);
     const a = parts.ante[i];
     ctx.fillStyle = '#073046'; ctx.font = '12px monospace';
-    ctx.fillText(`Anta ${a.index}`, x0+6, startY+16);
-    ctx.fillText(`${a.l_pr_anta} x ${a.h_pr_anta} mm`, x0+6, startY+34);
-    const gw = Math.max(8, (a.l_vetro||20)*scale);
-    const gh = Math.max(8, (a.h_vetro||20)*scale);
-    const gx = x0 + (w - gw)/2; const gy = startY + (drawH - gh)/2;
+    ctx.fillText(`Anta ${a.index}`, x0 + 6, startY + 16);
+    ctx.fillText(`${a.l_pr_anta} x ${a.h_pr_anta} mm`, x0 + 6, startY + 34);
+    const gw = Math.max(8, (a.l_vetro || 20) * scale);
+    const gh = Math.max(8, (a.h_vetro || 20) * scale);
+    const gx = x0 + (w - gw) / 2;
+    const gy = startY + (drawH - gh) / 2;
     ctx.fillStyle = 'rgba(180,230,250,0.7)'; ctx.fillRect(gx, gy, gw, gh);
     ctx.strokeStyle = 'rgba(11,102,255,0.9)'; ctx.strokeRect(gx, gy, gw, gh);
-    ctx.fillStyle = '#073046'; ctx.fillText(`${a.l_vetro} x ${a.h_vetro} mm`, gx+6, gy+14);
+    ctx.fillStyle = '#073046'; ctx.fillText(`${a.l_vetro} x ${a.h_vetro} mm`, gx + 6, gy + 14);
   }
+  ctx.restore();
+  // footer label
   ctx.fillStyle = '#073046'; ctx.font = '12px monospace';
-  ctx.fillText(`Scala approssimata`, 10, canvas.clientHeight/(window.devicePixelRatio||1)-6);
+  ctx.fillText(`Scala approssimata`, 10, cssHeight - 6);
 }
 
-// Print handling: convert canvas to image, hide log, print, cleanup
-function preparePrint(){
+// Print: convert canvas to image so it appears in PDF, hide log before print
+function preparePrintImage(){
   const canvas = $('canvas');
   if(!canvas) return null;
   try{
@@ -163,16 +184,17 @@ function preparePrint(){
     const logCard = $('logCard'); if(logCard) logCard.style.display = 'none';
     return img;
   }catch(e){
-    console.warn('preparePrint error', e); return null;
+    console.warn('print conversion failed', e);
+    return null;
   }
 }
-function cleanupPrint(img){
+function cleanupPrintImage(img){
   if(img && img.parentElement) img.remove();
-  const canvas = $('canvas'); if(canvas) canvas.style.display='block';
-  const logCard = $('logCard'); if(logCard) logCard.style.display='';
+  const canvas = $('canvas'); if(canvas) canvas.style.display = '';
+  const logCard = $('logCard'); if(logCard) logCard.style.display = '';
 }
 
-// Utilities
+// Export helpers
 function download(filename, text, mime='text/plain'){
   const blob = new Blob([text], {type: mime});
   const url = URL.createObjectURL(blob);
@@ -192,21 +214,25 @@ function toCSV(parts){
   return rows.join('\n');
 }
 
-// Main wiring
+// Main wiring and stable behaviors
 document.addEventListener('DOMContentLoaded', ()=>{
-  const calcola = $('calcola'); if(calcola) calcola.addEventListener('click', ()=>{ try{ performCalculate(true); }catch(e){ alert(e.message); } });
-  const reset = $('reset'); if(reset) reset.addEventListener('click', ()=>{ $('tipo').value='TT'; $('numeroAnte').value=2; $('altezza').value=1200; $('larghezza').value=1500; $('summaryTableContainer').innerHTML=''; $('detailsTableContainer').innerHTML=''; const c=$('canvas'); if(c) c.getContext('2d').clearRect(0,0,c.width,c.height); log('Reset effettuato'); });
-  const expJ = $('exportJson'); if(expJ) expJ.addEventListener('click', ()=>{ const p=window._LAST_PARTS; if(!p){ alert('Esegui prima il calcolo'); return; } download('infissipiu-result.json', JSON.stringify(p,null,2),'application/json'); log('Esportato JSON'); });
-  const expC = $('exportCsv'); if(expC) expC.addEventListener('click', ()=>{ const p=window._LAST_PARTS; if(!p){ alert('Esegui prima il calcolo'); return; } download('infissipiu-result.csv', toCSV(p),'text/csv'); log('Esportato CSV'); });
-  const prt = $('print'); if(prt) prt.addEventListener('click', ()=>{ const img = preparePrint(); setTimeout(()=>{ window.print(); setTimeout(()=>{ cleanupPrint(img); }, 300); }, 200); });
-  // redraw on resize/orientation
-  window.addEventListener('resize', ()=>{ if(window._LAST_PARTS) draw(window._LAST_PARTS); });
+  const calcola = $('calcola'); const reset = $('reset');
+  const expJ = $('exportJson'); const expC = $('exportCsv'); const prt = $('print');
+  if(calcola) calcola.addEventListener('click', ()=>{ try{ performCalculate(true); }catch(e){ alert(e.message); console.error(e); } });
+  if(reset) reset.addEventListener('click', ()=>{ $('tipo').value='TT'; $('numeroAnte').value=2; $('altezza').value=1200; $('larghezza').value=1500; $('summaryTableContainer').innerHTML=''; $('detailsTableContainer').innerHTML=''; const c=$('canvas'); if(c) c.getContext('2d').clearRect(0,0,c.width,c.height); log('Reset effettuato'); });
+  if(expJ) expJ.addEventListener('click', ()=>{ const p=window._LAST_PARTS; if(!p){ alert('Esegui prima il calcolo'); return; } download('infissipiu-result.json', JSON.stringify(p,null,2),'application/json'); });
+  if(expC) expC.addEventListener('click', ()=>{ const p=window._LAST_PARTS; if(!p){ alert('Esegui prima il calcolo'); return; } download('infissipiu-result.csv', toCSV(p),'text/csv'); });
+  if(prt) prt.addEventListener('click', ()=>{ const img = preparePrintImage(); setTimeout(()=>{ window.print(); setTimeout(()=>{ cleanupPrintImage(img); }, 400); }, 180); });
+
+  // redraw on resize/orientation with debounce
+  let rt; window.addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(()=>{ if(window._LAST_PARTS) draw(window._LAST_PARTS); }, 120); });
   window.addEventListener('orientationchange', ()=>{ setTimeout(()=>{ if(window._LAST_PARTS) draw(window._LAST_PARTS); }, 200); });
+
   // initial calculate
-  setTimeout(()=>{ try{ performCalculate(false); }catch(e){ console.error(e); } }, 80);
+  try{ performCalculate(false); }catch(e){ console.error(e); }
 });
 
-function performCalculate(scrollTo=true){
+function performCalculate(scrollToResults=true){
   const tipo = $('tipo').value;
   const nAnte = parseInt($('numeroAnte').value) || 1;
   const H = parseFloat($('altezza').value) || 0;
@@ -215,30 +241,7 @@ function performCalculate(scrollTo=true){
   window._LAST_PARTS = parts; lastParts = parts;
   renderSummary(parts); renderDetails(parts); draw(parts);
   log('Calcolo eseguito');
-  if(scrollTo){ setTimeout(()=>{ const el = $('summarySection'); if(el) el.scrollIntoView({behavior:'smooth'}); }, 150); }
-}
-
-
-// ===== Mobile auto-scroll and resize support v2 =====
-window.addEventListener("resize", () => {
-  const canvas = document.querySelector("canvas");
-  if (!canvas) return;
-  // trigger redraw if function available
-  if (typeof ridisegnaInfisso === "function") {
-    ridisegnaInfisso();
+  if(scrollToResults){
+    setTimeout(()=>{ const el = $('summarySection'); if(el) el.scrollIntoView({behavior:'smooth'}); }, 150);
   }
-});
-
-function scrollToResults() {
-  const results = document.getElementById("results");
-  if (results) results.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  const calcButton = document.getElementById("btnCalcola");
-  if (calcButton) {
-    calcButton.addEventListener("click", () => {
-      setTimeout(scrollToResults, 800);
-    });
-  }
-});
